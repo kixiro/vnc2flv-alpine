@@ -1,0 +1,32 @@
+FROM alpine:3.6
+
+RUN apk update
+RUN apk add py2-pip gcc libc-dev python2-dev
+RUN pip install vnc2flv
+
+
+
+FROM alpine:3.6
+
+ADD password.txt /
+ADD run.sh /
+RUN apk update \
+	&& apk add netcat-openbsd bash python2 \
+	&& chmod +x run.sh \
+	&& rm -rf /var/cache/apk/*
+
+COPY --from=0 /usr/bin/flvaddmp3.py /usr/bin/
+COPY --from=0 /usr/bin/flvcat.py /usr/bin/
+COPY --from=0 /usr/bin/flvdump.py /usr/bin/
+COPY --from=0 /usr/bin/flvrec.py /usr/bin/
+COPY --from=0 /usr/bin/flvsplit.py /usr/bin/
+COPY --from=0 /usr/lib/python2.7/site-packages/flvscreen.so /usr/lib/python2.7/site-packages/
+COPY --from=0 /usr/lib/python2.7/site-packages/vnc2flv /usr/lib/python2.7/site-packages/
+COPY --from=0 /usr/lib/python2.7/site-packages/vnc2flv/__init__.py /usr/lib/python2.7/site-packages/vnc2flv/
+COPY --from=0 /usr/lib/python2.7/site-packages/vnc2flv/audio.py /usr/lib/python2.7/site-packages/vnc2flv/
+COPY --from=0 /usr/lib/python2.7/site-packages/vnc2flv/d3des.py /usr/lib/python2.7/site-packages/vnc2flv/
+COPY --from=0 /usr/lib/python2.7/site-packages/vnc2flv/flv.py /usr/lib/python2.7/site-packages/vnc2flv/
+COPY --from=0 /usr/lib/python2.7/site-packages/vnc2flv/rfb.py /usr/lib/python2.7/site-packages/vnc2flv/
+COPY --from=0 /usr/lib/python2.7/site-packages/vnc2flv/video.py /usr/lib/python2.7/site-packages/vnc2flv/
+
+ENTRYPOINT ["/run.sh"]
